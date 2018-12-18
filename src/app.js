@@ -6,6 +6,8 @@ const express = require('express'),
 	routes = require('./routes/routes'),
 	response = require('./models/response'),
 	cors = require('cors');
+ 	sql = require('mssql/msnodesqlv8');
+
 
 const port = process.env.PORT || 8080;
 
@@ -14,6 +16,22 @@ app.use(bodyParser.json());
 app.use(helmet());
 app.use(cors());
 routes(app);
+
+const pool = new sql.ConnectionPool({
+  database: 'RoutePlanner2_DEV',
+  server: 'RoutePlanner2_DEV',
+  driver: 'msnodesqlv8',
+  options: {
+    trustedConnection: true
+  }
+});
+
+pool.connect().then(() => {
+  //simple query
+  pool.request().query('select 1 as number', (err, result) => {
+        console.dir(result)
+    })
+});
 
 app.use(function (err, req, res, next) {
 	res.status(500);
